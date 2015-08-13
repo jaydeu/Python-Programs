@@ -15,7 +15,7 @@ from math import floor
 import sys
 
 ### Read in the list of moves from a text file
-f = open('226_int_2.txt', 'r')
+f = open('inputs\226_int_2.txt', 'r')
 
 ### Create a game board 
 board = DataFrame(index=range(1,7), columns=list('ABCDEFG'))
