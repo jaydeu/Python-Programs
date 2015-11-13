@@ -1,0 +1,251 @@
+\documentclass{article}
+\usepackage{amsmath}
+
+\begin{document}
+\title{Machine Learning with Andrew Ng Notes - Neural Networks}
+\author{J. Eustace}
+\date{\today}
+\maketitle
+
+\section{Neural Networks}
+
+
+\noindent\rule[0.5ex]{\linewidth}{1pt}
+
+\textbf{Usage:} Classification problems. Requires a data set with no missing elements, so would have to fill in missing data before using this.
+
+\textbf{Pros:} Can deal with complex polynomial decision boundaries.
+
+\textbf{Cons:} Hard to interpret model, computationally expensive.
+
+\noindent\rule[0.5ex]{\linewidth}{1pt}
+
+
+A neural network is a type of model inspired by the way that neurons work in the brain. Each ``neuron" takes several inputs, performs calculations with an \textbf{activation function}, $g()$, then outputs information to other neurons. The model will consist of an input layer, several hidden layers and an output layer. We will first discuss the binary case.
+
+Let $X_1, X_2, \dots, X_n$ be a set of input variables, each of which has the value $0$ or $1$. The input layer will consist of these $n$ inputs and also a $1$, called the \textbf{bias unit}. 
+
+Let $a_i^{(j)}$ be the \textbf{activation} of the $i$th neuron in layer $j$. Technically we could refer to $X_k$ as $a_k^{(1)}$ to keep our notation consistent. Define $\Theta^{(j)}$ to be the matrix of parameters or weights mapping from layer $j$ to layer $j+1$. 
+
+% http://ufldl.stanford.edu/wiki/images/thumb/9/99/Network331.png/400px-Network331.png
+
+Now we can calculate each layer recursively. For example, if we have three input variables and a hidden layer with three neurons, 
+
+\begin{align}
+a_0^{(2)} & = 1 \nonumber \\ 
+a_1^{(2)} & = g(\theta_{10}^{(2)} + \theta_{11}^{(1)}a_1^{(1)} + \theta_{12}^{(1)}a_2^{(1)} + \theta_{13}^{(1)}a_3^{(1)}) \nonumber \\ 
+a_2^{(2)} & = g(\theta_{20}^{(2)} + \theta_{21}^{(1)}a_1^{(1)} + \theta_{22}^{(1)}a_2^{(1)} + \theta_{23}^{(1)}a_3^{(1)}) \nonumber \\ 
+a_3^{(2)} & = g(\theta_{30}^{(2)} + \theta_{31}^{(1)}a_1^{(1)} + \theta_{32}^{(1)}a_2^{(1)} + \theta_{33}^{(1)}a_3^{(1)}) \nonumber 
+\end{align}
+
+In general, we can simplify using vector and matrix notation. Let $A^{(j)}$ be a matrix with $(i,j)$th element $a_i^{(j)}$. The our iterations become:
+
+\begin{align}
+Z^{(j)} & = t(\Theta^{(j-1)}) A^{(j-1)} \nonumber \\
+A^{(j)} & = g(Z^{(j)}). \nonumber
+\end{align}
+
+
+\subsection{Cost function and gradients}
+
+
+If we have a neural network with $L$ layers and $K$ classes built over $m$ observations, we can let $s_l$ be the number of neurons in layer $l$, not counting the bias unit. Recall that in logistic regression, we added a regularization term to smooth our cost function. We will do that again, although this time we will need to sum over the whole parameter matrix $\Theta^{(l)}$ in each layer.
+
+\begin{align}
+J(\Theta) & = -\frac{1}{m} \left[ \sum_{i=1}^m \sum_{k=1}^K y_k^{(i)} \log(h_\Theta(x^{(i)}))k + (1 - y^{(i)}_k)\log(1 - h_\Theta(x^{(i)}))k \right] \nonumber \\
+& + \frac{\lambda}{2m} \sum_{l=1}^L \sum_{i=1}^{s_l} \sum_{j=1}^{s_{l}+1} (\Theta_{ji}^{(l)})^2 \nonumber
+\end{align}
+
+
+\subsection{Logistic neural network}
+
+A logistic neural network calculates the logistic function, $g = \frac{1}{1+\exp(-z))}$ within each neuron. 
+
+\subsection{Forward propagation algorithm}
+
+We start by setting $a^{(1)} = x$. Now for $l = 2, \dots, L$, we compute the following:
+\begin{align}
+z^{(1)} & = \Theta^{(l-1)}a^{(l-1)} \nonumber \\
+a^{(l)} & = g(z^{(l)}) \mbox{, add $a_0^{(l)}=1$ to layer} \nonumber
+\end{align}
+
+\subsection{Back propagation algorithm}
+
+Let $\delta_j^{(l)}$ be the ``error" of node $j$ in layer $l$. For each output unit, starting at the final layer $L$, we can calculate
+
+\begin{align}
+\delta_j^{(L)} & = a_j^{(L)} - y_j \nonumber \\
+\delta^{(L-1)} & = (\Theta^{(L-1)})^T \delta^{(L)} * g^{\prime}(z^{(L-1)}) \nonumber \\
+\dots \nonumber \\
+\delta^{(2)} & = (\Theta^{(2)})^T \delta^{(3)} * g^{\prime}(z^{(2)}). \nonumber
+\end{align}
+
+Notes that we do not calculate $\delta^{(1)}$ because the first layer is just the input variables and does not have an associated estimation error. It can be shown that
+\begin{align}
+g^{\prime}(z^{(l)}) & = a^{(l)}*(1 - a^{(l)}). \nonumber
+\end{align}
+
+Now, let $\Delta_ij^{(l)} = 0$ for all $l, i, j$. For $i= 1$ to $m$: 
+
+\begin{itemize}
+\item set $a^{(1)} = x^{(i)}$, the vector of features for the $i$th member of the training set. 
+\item Use the forward propogation algorithm to compute $a_l$ for $l = 2,3, \dots, L$. 
+\item Compute $\delta^{(L)} = a^{(L)} - y^{(i)}$
+\item Compute $\delta^{(L-1)}, \dots, \delta^{(2)}$
+\item $\Delta_ij^{(l)} = \Delta_ij^{(l)} + a_j^{(l)} \delta_i^{(l+1)}$
+\end{itemize}
+
+\subsection{Notes about usage}
+
+Before fitting a neural network:
+
+\begin{itemize}
+\item Make sure that there is no missing data. If there is, then use another method to fill in the missing pieces.
+\item Normalize the data. Otherwise we may end up with useless results, or the algorithm will not converge quickly. The min-max interval method (scaling to $[0,1]$ or $[-1,1]$) tends to give good results.
+\item One hidden layer is enough for most applications. The number of neurons should be between the input layer size and output layer size. Setting to $\frac{2}{3}$ of the input layer size usually works well, but it is best to test several different ways using a cross validation set.
+\item The formula ``y ~." is not accepted as an argument in the neural net function. We need to pass the formula to a variable and use the variable in the function.
+\item Set linear.output = TRUE for regression and linear.output = FALSE for classification.
+\end{itemize}
+
+
+\subsection{Neural Network Example in \textbf{R}}
+
+This example code was written by Michy Alice on r-bloggers.com, with my own comments included.
+
+\begin{verbatim}
+set.seed(500)
+library(MASS)
+data <- Boston
+library(caret)
+
+# Check for missing values (the '2' applies the function to the columns of 'data').
+
+apply(data,2,function(x) sum(is.na(x)))
+
+# There is no missing data, so we can continue. 
+# Split the data into a training and test set.
+
+inTrain <- createDataPartition(y=data$medv, p=0.75, list=FALSE)
+train = data[inTrain,]
+test = data[-inTrain,]
+
+# Fit a linear model on the training data, and predict the test set.
+
+lm.fit <- glm(medv~., data=train)
+summary(lm.fit)
+pr.lm <- predict(lm.fit,test)
+MSE.lm <- sum((pr.lm - test$medv)^2)/nrow(test)
+# MSE = 25.2733
+
+# Normalize data in preparation for neural network: Scale to [-1,1].
+
+maxs <- apply(data, 2, max)
+mins <- apply(data, 2, min)
+
+scaled <- as.data.frame(scale(data, center = mins, scale = maxs - mins))
+
+train_ <- scaled[inTrain,]
+test_ <- scaled[-inTrain,]
+
+# Now we can fit a neural network. Let's try this configuration: 13:5:3:1.
+
+library(neuralnet)
+n <- names(train_)
+f <- as.formula(paste("medv ~", paste(n[!n %in% "medv"], collapse = " + ")))
+nn <- neuralnet(f,data=train_,hidden=c(5,3),linear.output=T)
+plot(nn)
+
+# Now we can try to predict medv, the median house value.
+# The compute function is from the neuralnet package, it includes an optional parameter rep,
+# the number of repetitions (default = 1).
+pr.nn <- compute(nn,test_[,1:13])
+
+# Un-normalize the results and true values.
+pr.nn_ <- pr.nn$net.result*(max(data$medv)-min(data$medv))+min(data$medv)
+test.r <- (test_$medv)*(max(data$medv)-min(data$medv))+min(data$medv)
+
+# Check the MSE
+MSE.nn <- sum((test.r - pr.nn_)^2)/nrow(test_)
+# MSE = 18.046
+
+print(paste(MSE.lm,MSE.nn))
+# This is an improvement over the typical linear regression!
+
+### Cross Validation and Checking ###
+
+# We can plot both the LM and NN predictions to see whether the NN is more concentrated
+# around the line y=x, as we would expect.
+
+par(mfrow=c(1,2))
+
+plot(test$medv,pr.nn_,col='red',main='Real vs predicted NN',pch=18,cex=0.7)
+abline(0,1,lwd=2)
+legend('bottomright',legend='NN',pch=18,col='red', bty='n')
+
+plot(test$medv,pr.lm,col='blue',main='Real vs predicted lm',pch=18, cex=0.7)
+abline(0,1,lwd=2)
+legend('bottomright',legend='LM',pch=18,col='blue', bty='n', cex=.95)
+
+
+# 10-fold cross validated MSE for the linear model (there is a cv.glm function that
+# automates this).
+
+library(boot)
+set.seed(200)
+lm.fit <- glm(medv~.,data=data)
+cv.glm(data,lm.fit,K=10)$delta[1]
+
+23.83560156
+
+# 10-fold cross validated MSE for the NN model:
+
+set.seed(450)
+cv.error <- NULL
+k <- 10
+
+library(plyr) 
+pbar <- create_progress_bar('text')
+pbar$init(k)
+
+for(i in 1:k){
+    index <- sample(1:nrow(data),round(0.9*nrow(data)))
+    train.cv <- scaled[index,]
+    test.cv <- scaled[-index,]
+    
+    nn <- neuralnet(f,data=train.cv,hidden=c(5,2),linear.output=T)
+    
+    pr.nn <- compute(nn,test.cv[,1:13])
+    pr.nn <- pr.nn$net.result*(max(data$medv)-min(data$medv))+min(data$medv)
+    
+    test.cv.r <- (test.cv$medv)*(max(data$medv)-min(data$medv))+min(data$medv)
+    
+    cv.error[i] <- sum((test.cv.r - pr.nn)^2)/nrow(test.cv)
+    
+    pbar$step()
+}
+
+# Calculate average MSE
+mean(cv.error)
+
+# Produce a boxplot
+
+boxplot(cv.error,xlab='MSE CV',col='cyan',
+        border='blue',names='CV error (MSE)',
+        main='CV error (MSE) for NN',horizontal=TRUE)
+        
+        
+
+\end{verbatim}
+
+\subsection{Sources}
+
+
+%http://www.r-bloggers.com/fitting-a-neural-network-in-r-neuralnet-package/
+%https://gist.github.com/mick001/49fad7f4c6112d954aff
+
+
+
+
+
+
+\end{document}

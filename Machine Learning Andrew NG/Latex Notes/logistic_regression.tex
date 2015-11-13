@@ -1,0 +1,75 @@
+
+\documentclass{article}
+\usepackage{amsmath}
+
+\begin{document}
+
+\title{Machine Learning with Andrew Ng Notes - Logistic Regression}
+\author{J. Eustace}
+\date{\today}
+\maketitle
+
+\section{Logistic Regression}
+
+\noindent\rule[0.5ex]{\linewidth}{1pt}
+
+\textbf{Usage:} Classification problems.
+
+\textbf{Pros:}
+
+\textbf{Cons:}
+
+\noindent\rule[0.5ex]{\linewidth}{1pt}
+
+Logistic regression is somewhat similar to linear regression. This form of regression is useful if we have a \textbf{classification problem}, rather than the problem of estimating a real numbered value (in which case we might use linear regression). 
+
+Say that we have an observed value vector $Y$, which can take binary values $0$ or $1$. In logistic regressio, the cost function which is based on the \textbf{logistic} or \textbf{sigmoid} function, 
+
+\begin{align}
+g(z) & = \frac{1}{1 + \exp(-z)},
+\end{align}
+
+\noindent
+which can only take values between $0$ and $1$. Therefore, our prediction function $h()$ is
+
+\begin{align}
+h_\Theta(x_i) & = g(\Theta'x_i),
+\end{align}
+
+\noindent
+the probability that $Y_i=1$ given the known values of $X$ and estimated parameters $\Theta$.
+
+
+\subsection{Algorithm}
+
+Cost function:
+
+\begin{align}
+J(\Theta) & = \frac{1}{2m} \sum_{i=1}^m (h_\Theta(x^{(i)}) - y^{(i)})^2 \\
+		& = \frac{1}{2m} h_\Theta(X) - Y
+\end{align}
+
+
+Gradient:
+
+\begin{align}
+\frac{\partial}{\partial \theta_j} J(\Theta) & = \sum_{i=1}^m (h_\Theta(x^{(i)}) - y^{(i)})x^{(i)}_j
+\end{align}
+
+
+
+\subsection{Regularization}
+
+Logistic regression can sometimes result in over fitting, especially if we have a small sample size relative to the number of features, or we are trying to fit a high order polynomial. Adding a regularization term will help to reduce the effect of each feature and create a smoother and more generally applicable model. 
+
+\subsection{Usage Tips}
+
+
+
+
+
+\subsection{Sample Code}
+
+
+
+\end{document}
